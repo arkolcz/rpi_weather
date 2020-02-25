@@ -2,7 +2,6 @@ import json
 import urllib.request
 import urllib.error
 import requests
-from pyowm import OWM
 
 # IP and location of hardware that script is running on in JSON format
 IP_INFO_URL = 'http://ipinfo.io/json'
@@ -38,19 +37,20 @@ def update_api_key():
            API_KEY = f.read()
     except FileNotFoundError:
         print('File api_key.txt not found')
-        API_KEY = 'Unkown'
+        exit() # If api_key.txt is not present, terminate program
     except:
         print('Cant read from api-key.txt')
-        API_KEY = 'Unkown'
+        exit() # If we can't access api-key.txt, terminate program
 
 def get_weather_data():
     # Fetch weather data from OpenWeather
-    owm_pl = OWM(API_KEY, language='pl')
-    obs = owm_pl.weather_at_place(USER_CITY)
-    return obs.to_JSON()
-    # TODO: Convert UNICODE
+    # requests lib used to avoid problem with unicode encoding in response
+        url = f'https://api.openweathermap.org/data/2.5/weather?q={USER_CITY}&units=metric&appid={API_KEY}'
+        r = requests.get(url)
+        return r.json()
 
 if  __name__ == "__main__":
     update_IP_info()
     update_api_key()
     weather = get_weather_data()
+    print(weather)
